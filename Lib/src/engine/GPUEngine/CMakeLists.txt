@@ -15,7 +15,10 @@ else (IPP_FOUND) # use framewave
 																								--ptxas-options=-v -DMATLAB_MEX_FILE -DFW)
 endif (IPP_FOUND)
 
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -Xcompiler ${OpenMP_CXX_FLAGS})
+SET(CUDA_NEW_FLAGS -gencode=arch=compute_30,code=\"sm_30,compute_30\" -gencode=arch=compute_35,code=\"sm_35,compute_35\" -gencode=arch=compute_50,code=\"sm_50,compute_50\")
+#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -Xcompiler ${OpenMP_CXX_FLAGS})
+set(CUDA_NVCC_FLAGS ${CUDA_NEW_FLAGS} -Xcompiler ${OpenMP_CXX_FLAGS})
+
 find_library(GOMP_LIBRARY gomp)
 if (NOT GOMP_LIBRARY)
     set(GOMP_LIBRARIES "")
