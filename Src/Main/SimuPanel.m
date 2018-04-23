@@ -94,6 +94,9 @@ handles.BatchList=[];
 %System Hardware Check
 try
     handles.CPUInfo=DoCPUOSChk;
+    if ismac & ~isfield(handles.CPUInfo,'NumThreads')
+        handles.CPUInfo.NumThreads = 2*handles.CPUInfo.NumProcessors;
+    end
     if ~isempty(handles.CPUInfo)
         handles.CPU_uimenu=uimenu(handles.SelectPU_uimenu,'Label',handles.CPUInfo.Name);
         set(handles.CPU_uimenu,'Callback',{@Uimenu_ChkFunction, handles.CPU_uimenu});

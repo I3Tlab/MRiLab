@@ -1,0 +1,112 @@
+To compile for Mac OS X
+========================
+Download the IPP libraries from Intel (https://software.intel.com/en-us/intel-ipp)
+Install basic Xcode command line compilation tools 
+console:> xcode-select install
+Install Home-brew (https://brew.sh)
+Install gcc, make and llvm using home-brew
+brew install cmake gcc
+brew install llvm --with-clang
+Change a bunch of CMakeLists.txt ... changes noted in the commit
+
+
+Console output of a MAC OS X build:
+===========
+wifi_facstf-10-22-39-94:~ arwillis$ cd /Users/arwillis/Documents/
+wifi_facstf-10-22-39-94:Documents arwillis$ cd MRiLab/Lib/src/
+wifi_facstf-10-22-39-94:src arwillis$ mkdir build
+wifi_facstf-10-22-39-94:src arwillis$ cd build/
+wifi_facstf-10-22-39-94:build arwillis$ cmake ..
+-- The C compiler identification is AppleClang 9.1.0.9020039
+-- The CXX compiler identification is AppleClang 9.1.0.9020039
+-- Check for working C compiler: /Library/Developer/CommandLineTools/usr/bin/cc
+-- Check for working C compiler: /Library/Developer/CommandLineTools/usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /Library/Developer/CommandLineTools/usr/bin/c++
+-- Check for working CXX compiler: /Library/Developer/CommandLineTools/usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- MATLAB_ROOT: /Applications/MATLAB_R2016b.app
+-- Matlab mex will be used
+-- IPP_ROOT (IPP 6): /opt/intel
+-- Found IPP: /opt/intel/ipp/lib/libipps.dylib;/opt/intel/ipp/lib/libippvm.dylib;/opt/intel/lib/libiomp5.dylib;/opt/intel/ipp/lib/libippcore.dylib  
+-- FRAMEWAVE_ROOT environment variable not set.
+-- In Linux this can be done in your user .bashrc file by appending the corresponding line, e.g:
+-- export FRAMEWAVE_ROOT=/usr/local/framewave/build
+-- In Windows this can be done by adding system variable, e.g:
+-- FRAMEWAVE_ROOT=C:\Program Files\FRAMEWAVE_1.3.1_SRC\Framewave\build
+-- Could NOT find Framewave (missing: FW_LIBRARIES FW_INCLUDE_DIR) 
+-- IPP and/or Framewave Found, CPU engine will be compiled
+-- IPP will be used
+CUDA not found. GPU engine will not be compiled
+VTK not found. MRiLab DoKSpaceTrajVTK will not be compiled.
+ISMRMRD and/or Boost not found. MRiLab to Gadgetron interface will not be compiled
+-- Configuring done
+CMake Warning (dev):
+  Policy CMP0042 is not set: MACOSX_RPATH is enabled by default.  Run "cmake
+  --help-policy CMP0042" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  MACOSX_RPATH is not specified for the following targets:
+
+   DoCalSARAtCPU
+   DoGridding
+   DoSARAverageAtCPU
+   DoScanAtCPU
+
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Generating done
+-- Build files have been written to: /Users/arwillis/Documents/MRiLab/Lib/src/build
+wifi_facstf-10-22-39-94:build arwillis$ make
+/usr/local/Cellar/cmake/3.11.0/bin/cmake -H/Users/arwillis/Documents/MRiLab/Lib/src -B/Users/arwillis/Documents/MRiLab/Lib/src/build --check-build-system CMakeFiles/Makefile.cmake 0
+/usr/local/Cellar/cmake/3.11.0/bin/cmake -E cmake_progress_start /Users/arwillis/Documents/MRiLab/Lib/src/build/CMakeFiles /Users/arwillis/Documents/MRiLab/Lib/src/build/CMakeFiles/progress.marks
+/Library/Developer/CommandLineTools/usr/bin/make -f CMakeFiles/Makefile2 all
+/Library/Developer/CommandLineTools/usr/bin/make -f engine/CPUEngine/CMakeFiles/DoCalSARAtCPU.dir/build.make engine/CPUEngine/CMakeFiles/DoCalSARAtCPU.dir/depend
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build && /usr/local/Cellar/cmake/3.11.0/bin/cmake -E cmake_depends "Unix Makefiles" /Users/arwillis/Documents/MRiLab/Lib/src /Users/arwillis/Documents/MRiLab/Lib/src/engine/CPUEngine /Users/arwillis/Documents/MRiLab/Lib/src/build /Users/arwillis/Documents/MRiLab/Lib/src/build/engine/CPUEngine /Users/arwillis/Documents/MRiLab/Lib/src/build/engine/CPUEngine/CMakeFiles/DoCalSARAtCPU.dir/DependInfo.cmake --color=
+Scanning dependencies of target DoCalSARAtCPU
+/Library/Developer/CommandLineTools/usr/bin/make -f engine/CPUEngine/CMakeFiles/DoCalSARAtCPU.dir/build.make engine/CPUEngine/CMakeFiles/DoCalSARAtCPU.dir/build
+[ 12%] Building CXX object engine/CPUEngine/CMakeFiles/DoCalSARAtCPU.dir/DoCalSARAtCPU.cpp.o
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build/engine/CPUEngine && g++-7  -DDoCalSARAtCPU_EXPORTS -DIPP -DMATLAB_MEX_FILE -DMX_COMPAT_32 -I/Applications/MATLAB_R2016b.app/extern/include -I/opt/intel/ipp/include  -O3 -DNDEBUG -fPIC   -fopenmp -o CMakeFiles/DoCalSARAtCPU.dir/DoCalSARAtCPU.cpp.o -c /Users/arwillis/Documents/MRiLab/Lib/src/engine/CPUEngine/DoCalSARAtCPU.cpp
+[ 25%] Linking CXX shared library DoCalSARAtCPU.mexmaci64
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build/engine/CPUEngine && /usr/local/Cellar/cmake/3.11.0/bin/cmake -E cmake_link_script CMakeFiles/DoCalSARAtCPU.dir/link.txt --verbose=1
+g++-7 -O3 -DNDEBUG -dynamiclib -Wl,-headerpad_max_install_names -fopenmp -o DoCalSARAtCPU.mexmaci64 -install_name /Users/arwillis/Documents/MRiLab/Lib/src/build/engine/CPUEngine/DoCalSARAtCPU.mexmaci64 CMakeFiles/DoCalSARAtCPU.dir/DoCalSARAtCPU.cpp.o -Wl,-rpath,/Applications/MATLAB_R2016b.app/bin/maci64 -Wl,-rpath,/opt/intel/ipp/lib -Wl,-rpath,/opt/intel/lib /Applications/MATLAB_R2016b.app/bin/maci64/libmex.dylib /Applications/MATLAB_R2016b.app/bin/maci64/libmx.dylib /opt/intel/ipp/lib/libipps.dylib /opt/intel/ipp/lib/libippvm.dylib /opt/intel/lib/libiomp5.dylib /opt/intel/ipp/lib/libippcore.dylib 
+[ 25%] Built target DoCalSARAtCPU
+/Library/Developer/CommandLineTools/usr/bin/make -f engine/CPUEngine/CMakeFiles/DoScanAtCPU.dir/build.make engine/CPUEngine/CMakeFiles/DoScanAtCPU.dir/depend
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build && /usr/local/Cellar/cmake/3.11.0/bin/cmake -E cmake_depends "Unix Makefiles" /Users/arwillis/Documents/MRiLab/Lib/src /Users/arwillis/Documents/MRiLab/Lib/src/engine/CPUEngine /Users/arwillis/Documents/MRiLab/Lib/src/build /Users/arwillis/Documents/MRiLab/Lib/src/build/engine/CPUEngine /Users/arwillis/Documents/MRiLab/Lib/src/build/engine/CPUEngine/CMakeFiles/DoScanAtCPU.dir/DependInfo.cmake --color=
+Scanning dependencies of target DoScanAtCPU
+/Library/Developer/CommandLineTools/usr/bin/make -f engine/CPUEngine/CMakeFiles/DoScanAtCPU.dir/build.make engine/CPUEngine/CMakeFiles/DoScanAtCPU.dir/build
+[ 37%] Building CXX object engine/CPUEngine/CMakeFiles/DoScanAtCPU.dir/DoScanAtCPU.cpp.o
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build/engine/CPUEngine && g++-7  -DDoScanAtCPU_EXPORTS -DIPP -DMATLAB_MEX_FILE -DMX_COMPAT_32 -I/Applications/MATLAB_R2016b.app/extern/include -I/opt/intel/ipp/include  -O3 -DNDEBUG -fPIC   -fopenmp -o CMakeFiles/DoScanAtCPU.dir/DoScanAtCPU.cpp.o -c /Users/arwillis/Documents/MRiLab/Lib/src/engine/CPUEngine/DoScanAtCPU.cpp
+[ 50%] Linking CXX shared library DoScanAtCPU.mexmaci64
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build/engine/CPUEngine && /usr/local/Cellar/cmake/3.11.0/bin/cmake -E cmake_link_script CMakeFiles/DoScanAtCPU.dir/link.txt --verbose=1
+g++-7 -O3 -DNDEBUG -dynamiclib -Wl,-headerpad_max_install_names -fopenmp -o DoScanAtCPU.mexmaci64 -install_name /Users/arwillis/Documents/MRiLab/Lib/src/build/engine/CPUEngine/DoScanAtCPU.mexmaci64 CMakeFiles/DoScanAtCPU.dir/DoScanAtCPU.cpp.o -Wl,-rpath,/Applications/MATLAB_R2016b.app/bin/maci64 -Wl,-rpath,/opt/intel/ipp/lib -Wl,-rpath,/opt/intel/lib /Applications/MATLAB_R2016b.app/bin/maci64/libmex.dylib /Applications/MATLAB_R2016b.app/bin/maci64/libmx.dylib /opt/intel/ipp/lib/libipps.dylib /opt/intel/ipp/lib/libippvm.dylib /opt/intel/lib/libiomp5.dylib /opt/intel/ipp/lib/libippcore.dylib 
+[ 50%] Built target DoScanAtCPU
+/Library/Developer/CommandLineTools/usr/bin/make -f recon/DoGridding/CMakeFiles/DoGridding.dir/build.make recon/DoGridding/CMakeFiles/DoGridding.dir/depend
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build && /usr/local/Cellar/cmake/3.11.0/bin/cmake -E cmake_depends "Unix Makefiles" /Users/arwillis/Documents/MRiLab/Lib/src /Users/arwillis/Documents/MRiLab/Lib/src/recon/DoGridding /Users/arwillis/Documents/MRiLab/Lib/src/build /Users/arwillis/Documents/MRiLab/Lib/src/build/recon/DoGridding /Users/arwillis/Documents/MRiLab/Lib/src/build/recon/DoGridding/CMakeFiles/DoGridding.dir/DependInfo.cmake --color=
+Scanning dependencies of target DoGridding
+/Library/Developer/CommandLineTools/usr/bin/make -f recon/DoGridding/CMakeFiles/DoGridding.dir/build.make recon/DoGridding/CMakeFiles/DoGridding.dir/build
+[ 62%] Building CXX object recon/DoGridding/CMakeFiles/DoGridding.dir/DoGridding.cpp.o
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build/recon/DoGridding && g++-7  -DDoGridding_EXPORTS -DMATLAB_MEX_FILE -DMX_COMPAT_32 -I/Applications/MATLAB_R2016b.app/extern/include -I/opt/intel/ipp/include  -O3 -DNDEBUG -fPIC   -o CMakeFiles/DoGridding.dir/DoGridding.cpp.o -c /Users/arwillis/Documents/MRiLab/Lib/src/recon/DoGridding/DoGridding.cpp
+[ 75%] Linking CXX shared library DoGridding.mexa64
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build/recon/DoGridding && /usr/local/Cellar/cmake/3.11.0/bin/cmake -E cmake_link_script CMakeFiles/DoGridding.dir/link.txt --verbose=1
+g++-7 -O3 -DNDEBUG -dynamiclib -Wl,-headerpad_max_install_names  -o DoGridding.mexa64 -install_name /Users/arwillis/Documents/MRiLab/Lib/src/build/recon/DoGridding/DoGridding.mexa64 CMakeFiles/DoGridding.dir/DoGridding.cpp.o -Wl,-rpath,/Applications/MATLAB_R2016b.app/bin/maci64 /Applications/MATLAB_R2016b.app/bin/maci64/libmex.dylib /Applications/MATLAB_R2016b.app/bin/maci64/libmx.dylib 
+[ 75%] Built target DoGridding
+/Library/Developer/CommandLineTools/usr/bin/make -f utilities/DoSARAverageAtCPU/CMakeFiles/DoSARAverageAtCPU.dir/build.make utilities/DoSARAverageAtCPU/CMakeFiles/DoSARAverageAtCPU.dir/depend
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build && /usr/local/Cellar/cmake/3.11.0/bin/cmake -E cmake_depends "Unix Makefiles" /Users/arwillis/Documents/MRiLab/Lib/src /Users/arwillis/Documents/MRiLab/Lib/src/utilities/DoSARAverageAtCPU /Users/arwillis/Documents/MRiLab/Lib/src/build /Users/arwillis/Documents/MRiLab/Lib/src/build/utilities/DoSARAverageAtCPU /Users/arwillis/Documents/MRiLab/Lib/src/build/utilities/DoSARAverageAtCPU/CMakeFiles/DoSARAverageAtCPU.dir/DependInfo.cmake --color=
+Scanning dependencies of target DoSARAverageAtCPU
+/Library/Developer/CommandLineTools/usr/bin/make -f utilities/DoSARAverageAtCPU/CMakeFiles/DoSARAverageAtCPU.dir/build.make utilities/DoSARAverageAtCPU/CMakeFiles/DoSARAverageAtCPU.dir/build
+[ 87%] Building CXX object utilities/DoSARAverageAtCPU/CMakeFiles/DoSARAverageAtCPU.dir/DoSARAverageAtCPU.cpp.o
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build/utilities/DoSARAverageAtCPU && g++-7  -DDoSARAverageAtCPU_EXPORTS -DMATLAB_MEX_FILE -DMX_COMPAT_32 -I/Applications/MATLAB_R2016b.app/extern/include -I/opt/intel/ipp/include  -O3 -DNDEBUG -fPIC   -o CMakeFiles/DoSARAverageAtCPU.dir/DoSARAverageAtCPU.cpp.o -c /Users/arwillis/Documents/MRiLab/Lib/src/utilities/DoSARAverageAtCPU/DoSARAverageAtCPU.cpp
+[100%] Linking CXX shared library DoSARAverageAtCPU.mexa64
+cd /Users/arwillis/Documents/MRiLab/Lib/src/build/utilities/DoSARAverageAtCPU && /usr/local/Cellar/cmake/3.11.0/bin/cmake -E cmake_link_script CMakeFiles/DoSARAverageAtCPU.dir/link.txt --verbose=1
+g++-7 -O3 -DNDEBUG -dynamiclib -Wl,-headerpad_max_install_names  -o DoSARAverageAtCPU.mexa64 -install_name /Users/arwillis/Documents/MRiLab/Lib/src/build/utilities/DoSARAverageAtCPU/DoSARAverageAtCPU.mexa64 CMakeFiles/DoSARAverageAtCPU.dir/DoSARAverageAtCPU.cpp.o -Wl,-rpath,/Applications/MATLAB_R2016b.app/bin/maci64 /Applications/MATLAB_R2016b.app/bin/maci64/libmex.dylib /Applications/MATLAB_R2016b.app/bin/maci64/libmx.dylib 
+[100%] Built target DoSARAverageAtCPU
+/usr/local/Cellar/cmake/3.11.0/bin/cmake -E cmake_progress_start /Users/arwillis/Documents/MRiLab/Lib/src/build/CMakeFiles 0
+wifi_facstf-10-22-39-94:build arwillis$ cp engine/CPUEngine/DoScanAtCPU.mexmaci64 engine/CPUEngine/DoCalSARAtCPU.mexmaci64 ../../bin/
+wifi_facstf-10-22-39-94:build arwillis$ 
