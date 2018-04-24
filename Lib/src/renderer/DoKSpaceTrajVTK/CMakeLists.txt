@@ -1,6 +1,7 @@
 
 add_library(DoKSpaceTrajVTK SHARED DoKSpaceTrajVTK.cpp ${CMAKE_SOURCE_DIR}/Matlabdef.def)
 target_link_libraries(DoKSpaceTrajVTK ${MATLAB_LIBRARIES})
+include_directories(SYSTEM ${VTK_INCLUDE_DIRS})
 
 if(WIN32)
     if (CMAKE_CL_64)
