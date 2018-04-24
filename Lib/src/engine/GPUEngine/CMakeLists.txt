@@ -1,24 +1,21 @@
 
 IF (IPP_FOUND) # use ipp
     # compile kernels for shader models 20 30 35 50, support double-precision floating-point operation
-    set(CUDA_NVCC_FLAGS -Xcompiler -fPIC -use_fast_math -gencode=arch=compute_20,code="sm_20,compute_20"  
+    set(CUDA_NVCC_FLAGS -Xcompiler -fPIC -use_fast_math 
 																								 -gencode=arch=compute_30,code="sm_30,compute_30" 
 																								 -gencode=arch=compute_35,code="sm_35,compute_35" 
 																								 -gencode=arch=compute_50,code="sm_50,compute_50" 
 																								--ptxas-options=-v -DMATLAB_MEX_FILE -DIPP)
 else (IPP_FOUND) # use framewave
     # compile kernels for shader models 20 21 30 35 50, support double-precision floating-point operation
-    set(CUDA_NVCC_FLAGS -Xcompiler -fPIC -use_fast_math -gencode=arch=compute_20,code="sm_20,compute_20"
+    set(CUDA_NVCC_FLAGS -Xcompiler -fPIC -use_fast_math 
 																								 -gencode=arch=compute_30,code="sm_30,compute_30" 
 																								 -gencode=arch=compute_35,code="sm_35,compute_35" 
 																								 -gencode=arch=compute_50,code="sm_50,compute_50" 
 																								--ptxas-options=-v -DMATLAB_MEX_FILE -DFW)
 endif (IPP_FOUND)
 
-SET(CUDA_NEW_FLAGS -gencode=arch=compute_30,code=\"sm_30,compute_30\" -gencode=arch=compute_35,code=\"sm_35,compute_35\" -gencode=arch=compute_50,code=\"sm_50,compute_50\")
-#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -Xcompiler ${OpenMP_CXX_FLAGS})
-set(CUDA_NVCC_FLAGS ${CUDA_NEW_FLAGS} -Xcompiler ${OpenMP_CXX_FLAGS})
-
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -Xcompiler ${OpenMP_CXX_FLAGS})
 find_library(GOMP_LIBRARY gomp)
 if (NOT GOMP_LIBRARY)
     set(GOMP_LIBRARIES "")
@@ -42,11 +39,19 @@ foreach(CU_FILE ${CU_FILES})
           SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexw32)
         endif(CMAKE_CL_64)
     else(WIN32)
-        if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-          SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexa64 PREFIX "")
-        else(CMAKE_SIZEOF_VOID_P MATCHES "8")
-          SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexglx PREFIX "")
-        endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
+        if(UNIX)
+            if (CMAKE_SIZEOF_VOID_P MATCHES "8")
+                SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexa64 PREFIX "")
+            else(CMAKE_SIZEOF_VOID_P MATCHES "8")
+                SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexglx PREFIX "")
+            endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
+        else(UNIX)
+            if (CMAKE_SIZEOF_VOID_P MATCHES "8")
+                SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexmaci64 PREFIX "")
+            else(CMAKE_SIZEOF_VOID_P MATCHES "8")
+                SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexmaci PREFIX "")
+            endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
+        endif(UNIX)
     endif(WIN32)
 
     install(TARGETS ${CU_FILE} DESTINATION ../bin)
