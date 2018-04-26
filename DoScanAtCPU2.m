@@ -373,14 +373,14 @@ while (i < MaxStep-1)
                         %ippsCopy_32f(buffer3, buffer1, SpinMxSliceNum*SpinMxNum);
                         %ippsCopy_32f(buffer4, buffer2, SpinMxSliceNum*SpinMxNum);
                     else
-                        buffer1 = Mx(1:SpinMxSliceNum*SpinMxNum);
-                        buffer2 = My(1:SpinMxSliceNum*SpinMxNum);
-                        buffer3 = Mx(1:SpinMxSliceNum*SpinMxNum);
-                        buffer4 = My(1:SpinMxSliceNum*SpinMxNum);                        
                         %ippsCopy_32f(Mx, buffer1, SpinMxSliceNum*SpinMxNum);
                         %ippsCopy_32f(My, buffer2, SpinMxSliceNum*SpinMxNum);
                         %ippsCopy_32f(Mx, buffer3, SpinMxSliceNum*SpinMxNum);
                         %ippsCopy_32f(My, buffer4, SpinMxSliceNum*SpinMxNum);
+                        buffer1 = Mx(1:SpinMxSliceNum*SpinMxNum);
+                        buffer2 = My(1:SpinMxSliceNum*SpinMxNum);
+                        buffer3 = Mx(1:SpinMxSliceNum*SpinMxNum);
+                        buffer4 = My(1:SpinMxSliceNum*SpinMxNum);
                     end
                     
                     %/* rfRef for demodulating rf Phase */
@@ -394,17 +394,21 @@ while (i < MaxStep-1)
                         %ippsMulC_32f_I((float)cos(-(*rfRef)), buffer4, SpinMxSliceNum*SpinMxNum);
                         %ippsAdd_32f_I(buffer4, buffer3, SpinMxSliceNum*SpinMxNum);
                     else
-                        disp("rfRef ~= 0 else: ERROR NOT IMPLEMENTED");                        
                         %ippsCopy_32f(buffer4, buffer3, SpinMxSliceNum*SpinMxNum);
+                        buffer3 = buffer4;
                     end
                     
                     %/* signal summation */
-                    disp("signal summation: ERROR NOT IMPLEMENTED");                        
                     %ippsSum_32f(buffer1, SpinMxSliceNum*SpinMxNum, buffer, ippAlgHintFast);
+                    buffer = sum(buffer1);
                     %Sx[Typei*(*RxCoilNum)*(*SignalNum)+RxCoili*(*SignalNum)+Signali] += (double)*buffer;
-                    
+                    Sx(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1) = ...
+                        Sx(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1) + buffer;
                     %ippsSum_32f(buffer3, SpinMxSliceNum*SpinMxNum, buffer, ippAlgHintFast);
+                    buffer = sum(buffer3);
                     %Sy[Typei*(*RxCoilNum)*(*SignalNum)+RxCoili*(*SignalNum)+Signali] += (double)*buffer;
+                    Sy(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1) = ...
+                        Sy(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1) + buffer;
                 end
             end
             
@@ -424,10 +428,19 @@ while (i < MaxStep-1)
                 %My			= MyBase + (Typei*(*SpinNum)*SpinMxSliceNum*SpinMxNum + Spini*SpinMxSliceNum*SpinMxNum + Slicei*SpinMxNum);
                 %Mx			= MxBase + (Typei*(*SpinNum)*SpinMxSliceNum*SpinMxNum + Spini*SpinMxSliceNum*SpinMxNum + Slicei*SpinMxNum);
                 %dWRnd		= dWRndBase + (Typei*(*SpinNum)*SpinMxSliceNum*SpinMxNum + Spini*SpinMxSliceNum*SpinMxNum + Slicei*SpinMxNum);
+                offset = (Typei*SpinNum*SpinMxSliceNum*SpinMxNum + Spini*SpinMxSliceNum*SpinMxNum + Slicei*SpinMxNum+1);
+                Mz			= MzBase(offset:(offset+SpinMxNum-1));
+                My			= MyBase(offset:(offset+SpinMxNum-1));
+                Mx			= MxBase(offset:(offset+SpinMxNum-1));
+                dWRnd		= dWRndBase(offset:(offset+SpinMxNum-1));
                 
                 %Rho			= RhoBase+(Typei*SpinMxSliceNum*SpinMxNum + Slicei*SpinMxNum);
                 %T1			= T1Base+ (Typei*SpinMxSliceNum*SpinMxNum + Slicei*SpinMxNum);
                 %T2			= T2Base+ (Typei*SpinMxSliceNum*SpinMxNum + Slicei*SpinMxNum);
+                offset = (Typei*SpinMxSliceNum*SpinMxNum + Slicei*SpinMxNum+1);
+                Rho			= RhoBase(offset:(offset+SpinMxNum-1));
+                T1			= T1Base(offset:(offset+SpinMxNum-1));
+                T2			= T2Base(offset:(offset+SpinMxNum-1));
                 
                 %dB0			= dB0Base + Slicei*SpinMxNum;
                 %Gzgrid		= GzgridBase + Slicei*SpinMxNum;
@@ -435,12 +448,19 @@ while (i < MaxStep-1)
                 %Gxgrid		= GxgridBase + Slicei*SpinMxNum;
                 %TxCoilmg	= TxCoilmgBase + Slicei*SpinMxNum;
                 %TxCoilpe	= TxCoilpeBase + Slicei*SpinMxNum;
+                offset = Slicei*SpinMxNum+1;
+                dB0			= dB0Base(offset:(offset+SpinMxNum-1));
+                Gzgrid		= GzgridBase(offset:(offset+SpinMxNum-1));
+                Gygrid		= GygridBase(offset:(offset+SpinMxNum-1));
+                Gxgrid		= GxgridBase(offset:(offset+SpinMxNum-1));
+                TxCoilmg	= TxCoilmgBase(offset:(offset+SpinMxNum-1));
+                TxCoilpe	= TxCoilpeBase(offset:(offset+SpinMxNum-1));
                 
-                %/* call spin discrete precessing */
-                %BlochKernelNormalCPU((float)*Gyro, CS, SpinNum, Rho, T1, T2, Mz, My, Mx,
-                %					 dB0, dWRnd, Gzgrid, Gygrid, Gxgrid, TxCoilmg, TxCoilpe,
-                %					 (float)*dt, rfAmp, rfPhase, rfFreq, (float)*GzAmp, (float)*GyAmp, (float)*GxAmp,
-                %					 Typei, SpinMxNum, SpinMxSliceNum, *TxCoilNum);
+                % /* call spin discrete precessing */
+                BlochKernelNormalCPU(Gyro, CS, SpinNum, Rho, T1, T2, Mz, My, Mx, ...
+                    dB0, dWRnd, Gzgrid, Gygrid, Gxgrid, TxCoilmg, TxCoilpe, ...
+                    dt, rfAmp, rfPhase, rfFreq, GzAmp, GyAmp, GxAmp, ...
+                    Typei, SpinMxNum, SpinMxSliceNum, TxCoilNum);
             end
         end
     end
