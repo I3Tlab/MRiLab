@@ -1,4 +1,4 @@
-function DoScanAtCPU2()
+function DoScanAtCPU_MATLAB
 global VSeq;
 global VObj;
 global VCtl;
