@@ -1,4 +1,4 @@
-function A = DoScanAtCPU2()
+function DoScanAtCPU2()
 global VSeq;
 global VObj;
 global VCtl;
@@ -178,16 +178,21 @@ while (i < MaxStep-1)
         i = i + 1;
     end
     
-    %         /* update pulse status */
+    % /* update pulse status */
     % *t = *(utsLine + *utsi);
     t = utsLine(utsi+1);
+    VVar.t = t;
+    t
     % *dt = *(utsLine + (int)fmin(*utsi+1, MaxutsStep-1))-*(utsLine + *utsi);
     dt = utsLine(min(utsi+2, MaxutsStep-1))-utsLine(utsi+1);
+    VVar.dt = dt;
     utsi = min(utsi+2, MaxutsStep-1);
-    
+    VVar.utsi = utsi;
+
     if (flag(1) >= 1) % /* update rfAmp, rfPhase, rfFreq, rfCoil for multiple rf lines*/
         for j=0:(flag(1)-1)
             rfCoil = rfCoilLine(rfi+1);
+            VVar.rfCoil = rfCoil;
             TxCoili = int32(rfCoil);
             s = rfi + 1;
             while (s < MaxrfStep)
@@ -207,51 +212,67 @@ while (i < MaxStep-1)
                     else
                         rfFreq(TxCoili)= rfFreqLine(s+1);
                     end
+                    VVar.rfAmp = rfAmp;
+                    VVar.rfFreq = rfFreq;
+                    VVar.rfPhase = rfPhase;
                     break;
                 end
                 s = s + 1;
             end
             
             rfi = rfi + 1;
+            VVar.rfi = rfi;
         end
     end
     
-    if (flag(2)==1 )% /*update GzAmp */
+    if (flag(2)==1)% /*update GzAmp */
         if (abs(GzAmpLine(Gzi+1)) <= abs(GzAmpLine(int32(min(Gzi+2, MaxGzStep)))))
             GzAmp = GzAmpLine(Gzi+1);
+            VVar.GzAmp = GzAmp;
         else
             GzAmp = GzAmpLine(Gzi+2);
+            VVar.GzAmp = GzAmp;
         end
         Gzi = Gzi + 1;
+        VVar.Gzi = Gzi;
     end
     
     if (flag(3)==1 )% /*update GyAmp */
         if (abs(GyAmpLine(Gyi+1)) <= abs(GyAmpLine(int32(min(Gyi+2, MaxGyStep)))))
             GyAmp = GyAmpLine(Gyi+1);
+            VVar.GyAmp = GyAmp;
         else
             GyAmp = GyAmpLine(Gyi+2);
+            VVar.GyAmp = GyAmp;
         end
         Gyi = Gyi + 1;
+        VVar.Gyi = Gyi;
     end
     
     if (flag(4)==1 )% /*update GxAmp */
         if (abs(GxAmpLine(Gxi+1)) <= abs(GxAmpLine(int32(min(Gxi+2, MaxGxStep)))))
             GxAmp = GxAmpLine(Gxi+1);
+            VVar.GxAmp = GxAmp;
         else
             GxAmp = GxAmpLine(Gxi+2);
+            VVar.GxAmp = GxAmp;
         end
         Gxi = Gxi + 1;
+        VVar.Gyi = Gyi;
     end
     
     ADC = 0;   %/* prevent ADC overflow*/
+    VVar.ADC = ADC;
     if (flag(5)==1)% /* update ADC */
         ADC = ADCLine(ADCi+1);
-        
+        VVar.ADC = ADC;
         ADCi = ADCi + 1;
+        VVar.ADCi = ADCi;
     end
     
     if (flag(6)==1)% /* update Ext */
         Ext = ExtLine(Exti+1);
+        VVar.Ext=Ext;
         %/* execute extended process */
         if (Ext ~= 0)
             %ExtCall = mexEvalString("DoExtPlugin");
@@ -262,34 +283,50 @@ while (i < MaxStep-1)
                 disp("Extended process encounters ERROR!");
                 return;
             end
-            %
-            %                 /* update pointers, avoid pointer change between Matlab and Mex call */
-            %                 MzBase          = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "Mz"));
-            %                 MyBase          = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "My"));
-            %                 MxBase          = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "Mx"));
-            %                 RhoBase         = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "Rho"));
-            %                 T1Base          = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "T1"));
-            %                 T2Base          = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "T2"));
-            %                 dWRndBase       = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VMag"), 0, "dWRnd"));
-            %                 dB0Base         = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VMag"), 0, "dB0"));
-            %                 GzgridBase      = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VMag"), 0, "Gzgrid"));
-            %                 GygridBase      = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VMag"), 0, "Gygrid"));
-            %                 GxgridBase      = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VMag"), 0, "Gxgrid"));
-            %                 TxCoilmgBase    = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VCoi"), 0, "TxCoilmg"));
-            %                 TxCoilpeBase    = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VCoi"), 0, "TxCoilpe"));
-            %                 RxCoilx         = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VCoi"), 0, "RxCoilx"));
-            %                 RxCoily         = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VCoi"), 0, "RxCoily"));
-            %
-            %                 t               = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "t"));
-            %                 dt              = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "dt"));
-            %                 rfAmp           = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "rfAmp"));
-            %                 rfPhase         = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "rfPhase"));
-            %                 rfFreq          = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "rfFreq"));
-            %                 rfCoil          = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "rfCoil"));
-            %                 rfRef           = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "rfRef"));
-            %                 GzAmp           = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "GzAmp"));
-            %                 GyAmp           = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "GyAmp"));
-            %                 GxAmp           = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "GxAmp"));
+            
+            % /* update pointers, avoid pointer change between Matlab and Mex call */
+            % MzBase          = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "Mz"));
+            % MyBase          = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "My"));
+            % MxBase          = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "Mx"));
+            % RhoBase         = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "Rho"));
+            % T1Base          = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "T1"));
+            % T2Base          = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VObj"), 0, "T2"));
+            % dWRndBase       = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VMag"), 0, "dWRnd"));
+            % dB0Base         = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VMag"), 0, "dB0"));
+            % GzgridBase      = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VMag"), 0, "Gzgrid"));
+            % GygridBase      = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VMag"), 0, "Gygrid"));
+            % GxgridBase      = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VMag"), 0, "Gxgrid"));
+            MzBase          = VObj.Mz;
+            MyBase          = VObj.My;
+            MxBase          = VObj.Mx;
+            RhoBase         = VObj.Rho;
+            T1Base          = VObj.T1;
+            T2Base          = VObj.T2;
+            dB0Base         = VMag.dB0;
+            dWRndBase       = VMag.dWRnd;
+            GzgridBase      = VMag.Gzgrid;
+            GygridBase      = VMag.Gygrid;
+            GxgridBase      = VMag.Gxgrid;
+            
+            % TxCoilmgBase    = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VCoi"), 0, "TxCoilmg"));
+            % TxCoilpeBase    = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VCoi"), 0, "TxCoilpe"));
+            % RxCoilx         = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VCoi"), 0, "RxCoilx"));
+            % RxCoily         = (float*) mxGetData(mxGetField(mexGetVariablePtr("global", "VCoi"), 0, "RxCoily"));
+            TxCoilmgBase    = VCoi.TxCoilmg;
+            TxCoilpeBase    = VCoi.TxCoilpe;
+            RxCoilx         = VCoi.RxCoilx;
+            RxCoily         = VCoi.RxCoily;
+            
+            % t               = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "t"));
+            % dt              = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "dt"));
+            % rfAmp           = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "rfAmp"));
+            % rfPhase         = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "rfPhase"));
+            % rfFreq          = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "rfFreq"));
+            % rfCoil          = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "rfCoil"));
+            % rfRef           = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "rfRef"));
+            % GzAmp           = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "GzAmp"));
+            % GyAmp           = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "GyAmp"));
+            % GxAmp           = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "GxAmp"));
             %                 ADC             = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "ADC"));
             %                 Ext             = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "Ext"));
             %                 KzTmp           = (double*) mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "Kz"));
@@ -303,9 +340,33 @@ while (i < MaxStep-1)
             %                 ADCi            = (int*)    mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "ADCi"));
             %                 Exti            = (int*)    mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "Exti"));
             %                 TRCount         = (int*)    mxGetData(mxGetField(mexGetVariablePtr("global", "VVar"), 0, "TRCount"));
-            %
+            t               = VVar.t;
+            dt              = VVar.dt;
+            rfAmp           = VVar.rfAmp;
+            rfPhase         = VVar.rfPhase;
+            rfFreq          = VVar.rfFreq;
+            rfCoil          = VVar.rfCoil;
+            rfRef           = VVar.rfRef;
+            GzAmp           = VVar.GzAmp;
+            GyAmp           = VVar.GyAmp;
+            GxAmp           = VVar.GxAmp;
+            ADC             = VVar.ADC;
+            Ext             = VVar.Ext;
+            KzTmp           = VVar.Kz(1);
+            KyTmp           = VVar.Ky(1);
+            KxTmp           = VVar.Kx(1);
+            utsi            = VVar.utsi;
+            rfi             = VVar.rfi;
+            Gzi             = VVar.Gzi;
+            Gyi             = VVar.Gyi;
+            Gxi             = VVar.Gxi;
+            ADCi            = VVar.ADCi;
+            Exti            = VVar.Exti;
+            TRCount         = VVar.TRCount;
+
         end
         Exti = Exti + 1;
+        VVar.Exti = Exti;
     end
     
     if (flag(1)+flag(2)+flag(3)+flag(4)+flag(5)+flag(6) == 0)% /* reset VVar */
@@ -320,6 +381,11 @@ while (i < MaxStep-1)
         GxAmp = 0;
         ADC = 0;
         Ext = 0;
+        %VVar.GzAmp = GzAmp;
+        %VVar.GyAmp = GyAmp;
+        %VVar.GxAmp = GxAmp;
+        VVar.ADC = ADC;
+        VVar.Ext = Ext;
     end
     
     %/* execute spin precessing */
@@ -327,7 +393,7 @@ while (i < MaxStep-1)
         continue;
     elseif (dt < 0)% /* uncontinuous time point process */
         TRCount = TRCount + 1;
-        
+        VVar.TRCount = TRCount;
         fprintf("TR Counts: %d of %d\n", TRCount, TRNum);
         
         switch (RunMode)
@@ -349,14 +415,14 @@ while (i < MaxStep-1)
         for Spini = 0:(SpinNum-1)
             %/* signal acquisition */
             if (ADC == 1)
-                aaa = 1;
                 % SpinMxNum = num pixels (x,y)
                 % SpinMxSliceNum = num slices (3)
                 % SpinNum = 1?, Typei = 0?
                 %Mx = MxBase + (Typei*(*SpinNum)*SpinMxSliceNum*SpinMxNum + Spini*SpinMxSliceNum*SpinMxNum);
                 %My = MyBase + (Typei*(*SpinNum)*SpinMxSliceNum*SpinMxNum + Spini*SpinMxSliceNum*SpinMxNum);
-                Mx = MxBase((Typei*SpinNum*SpinMxSliceNum*SpinMxNum + Spini*SpinMxSliceNum*SpinMxNum+1):end);
-                My = MyBase((Typei*SpinNum*SpinMxSliceNum*SpinMxNum + Spini*SpinMxSliceNum*SpinMxNum+1):end);
+                offset = (Typei*SpinNum*SpinMxSliceNum*SpinMxNum + Spini*SpinMxSliceNum*SpinMxNum+1);
+                Mx = MxBase(offset:(offset+SpinMxSliceNum*SpinMxNum-1));
+                My = MyBase(offset:(offset+SpinMxSliceNum*SpinMxNum-1));
                 for RxCoili = 0:(RxCoilNum-1)%  /* signal acquisition per Rx coil */
                     %/* RxCoil sensitivity */
                     if (RxCoilDefault == 0)
@@ -404,11 +470,15 @@ while (i < MaxStep-1)
                     %Sx[Typei*(*RxCoilNum)*(*SignalNum)+RxCoili*(*SignalNum)+Signali] += (double)*buffer;
                     Sx(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1) = ...
                         Sx(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1) + buffer;
+                    VSig.Sx(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1) = ...
+                        Sx(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1);
                     %ippsSum_32f(buffer3, SpinMxSliceNum*SpinMxNum, buffer, ippAlgHintFast);
                     buffer = sum(buffer3);
                     %Sy[Typei*(*RxCoilNum)*(*SignalNum)+RxCoili*(*SignalNum)+Signali] += (double)*buffer;
                     Sy(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1) = ...
                         Sy(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1) + buffer;
+                    VSig.Sy(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1) = ...
+                        Sy(Typei*RxCoilNum*SignalNum+RxCoili*SignalNum+Signali+1);
                 end
             end
             
@@ -457,25 +527,43 @@ while (i < MaxStep-1)
                 TxCoilpe	= TxCoilpeBase(offset:(offset+SpinMxNum-1));
                 
                 % /* call spin discrete precessing */
-                BlochKernelNormalCPU(Gyro, CS, SpinNum, Rho, T1, T2, Mz, My, Mx, ...
+                try 
+                %disp("HERE1");
+                [Mx, My, Mz] = BlochKernelNormalCPU(Gyro, CS, SpinNum, Rho, T1, T2, Mz, My, Mx, ...
                     dB0, dWRnd, Gzgrid, Gygrid, Gxgrid, TxCoilmg, TxCoilpe, ...
                     dt, rfAmp, rfPhase, rfFreq, GzAmp, GyAmp, GxAmp, ...
                     Typei, SpinMxNum, SpinMxSliceNum, TxCoilNum);
+                %disp("HERE2");
+                catch me
+                    disp(me.message)
+                MxBase(offset:(offset+SpinMxNum-1)) = Mx;
+                MyBase(offset:(offset+SpinMxNum-1)) = My;
+                MzBase(offset:(offset+SpinMxNum-1)) = Mz;
+                if (Slicei==0)
+                    figure(2), imshow(abs(reshape(Mx,[100,80])),[]);
+                    drawnow;
+                end
             end
         end
     end
     
     if (ADC == 1)
-        %Kz[Signali] += *KzTmp;
-        %Ky[Signali] += *KyTmp;
-        %Kx[Signali] += *KxTmp;
-        %Signali++;
+        Kz(Signali+1) = Kz(Signali+1) + KzTmp;
+        Ky(Signali+1) = Ky(Signali+1) + KyTmp;
+        Kx(Signali+1) = Kx(Signali+1) + KxTmp;
+        VSig.Kz(Signali+1) = Kz(Signali+1);
+        VSig.Ky(Signali+1) = Ky(Signali+1);
+        VSig.Kx(Signali+1) = Kx(Signali+1);
+        Signali = Signali + 1;
     end
     
     %/* update Kz, Ky & Kx */
-    %*KzTmp +=(*GzAmp)*(*dt)*(*Gyro/(2*PI));
-    %*KyTmp +=(*GyAmp)*(*dt)*(*Gyro/(2*PI));
-    %*KxTmp +=(*GxAmp)*(*dt)*(*Gyro/(2*PI));
+    KzTmp = KzTmp + (GzAmp)*(dt)*(Gyro/(2*pi));
+    KyTmp = KyTmp + (GyAmp)*(dt)*(Gyro/(2*pi));
+    KxTmp = KxTmp + (GxAmp)*(dt)*(Gyro/(2*pi));
+    VVar.KzTmp = KzTmp;
+    VVar.KyTmp = KyTmp;
+    VVar.KxTmp = KxTmp;
     
     switch (RunMode)
         case 1 %/* spin rotation simulation & rf simulation */
@@ -483,8 +571,11 @@ while (i < MaxStep-1)
             %ippsCopy_32f(MyBase, MysBase+(*utsi)*(*TypeNum)*(*SpinNum)*SpinMxSliceNum*SpinMxNum, (*TypeNum)*(*SpinNum)*SpinMxSliceNum*SpinMxNum);
             %ippsCopy_32f(MxBase, MxsBase+(*utsi)*(*TypeNum)*(*SpinNum)*SpinMxSliceNum*SpinMxNum, (*TypeNum)*(*SpinNum)*SpinMxSliceNum*SpinMxNum);
             Muts(utsi+1) = Muts(utsi) + dt;
-            break;
-            
+            break;            
     end
 end
+%VSig.Mx = Mx;
+%VSig.My = My;
+%VSig.Mz = Mz;
+
 end
