@@ -1,20 +1,4 @@
-
-add_library(DoKSpaceTrajVTK SHARED DoKSpaceTrajVTK.cpp ${CMAKE_SOURCE_DIR}/Matlabdef.def)
-target_link_libraries(DoKSpaceTrajVTK ${MATLAB_LIBRARIES})
-
-if(WIN32)
-    if (CMAKE_CL_64)
-      SET_TARGET_PROPERTIES(DoKSpaceTrajVTK PROPERTIES SUFFIX .mexw64)
-    else(CMAKE_CL_64)
-      SET_TARGET_PROPERTIES(DoKSpaceTrajVTK PROPERTIES SUFFIX .mexw32)
-    endif(CMAKE_CL_64)
-else(WIN32)
-    if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-      SET_TARGET_PROPERTIES(DoKSpaceTrajVTK PROPERTIES SUFFIX .mexa64 PREFIX "")
-    else(CMAKE_SIZEOF_VOID_P MATCHES "8")
-      SET_TARGET_PROPERTIES(DoKSpaceTrajVTK PROPERTIES SUFFIX .mexglx PREFIX "")
-    endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
-endif(WIN32)
+matlab_add_mex(NAME DoKSpaceTrajVTK SRC DoKSpaceTrajVTK.cpp ${CMAKE_SOURCE_DIR}/Matlabdef.def LINK_TO ${Matlab_LIBRARIES})
 
 if(VTK_LIBRARIES)
     target_link_libraries(DoKSpaceTrajVTK ${VTK_LIBRARIES})
