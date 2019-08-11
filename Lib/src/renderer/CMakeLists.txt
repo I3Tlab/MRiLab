@@ -1,5 +1,5 @@
 
-include(${VTK_USE_FILE})
+#include(${VTK_USE_FILE})
 
 if (VTK_FOUND)
     add_subdirectory(DoKSpaceTrajVTK)

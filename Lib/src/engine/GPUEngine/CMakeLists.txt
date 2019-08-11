@@ -1,18 +1,16 @@
 
 IF (IPP_FOUND) # use ipp
     # compile kernels for shader models 20 30 35 50, support double-precision floating-point operation
-    set(CUDA_NVCC_FLAGS -Xcompiler -fPIC -use_fast_math -gencode=arch=compute_20,code="sm_20,compute_20"  
-																								 -gencode=arch=compute_30,code="sm_30,compute_30" 
-																								 -gencode=arch=compute_35,code="sm_35,compute_35" 
-																								 -gencode=arch=compute_50,code="sm_50,compute_50" 
-																								--ptxas-options=-v -DMATLAB_MEX_FILE -DIPP)
+    set(CUDA_NVCC_FLAGS -Xcompiler -fPIC -gencode=arch=compute_30,code="sm_30,compute_30" 
+						-gencode=arch=compute_35,code="sm_35,compute_35" 
+						-gencode=arch=compute_50,code="sm_50,compute_50"
+						--ptxas-options=-v -DMATLAB_MEX_FILE -DIPP)
 else (IPP_FOUND) # use framewave
     # compile kernels for shader models 20 21 30 35 50, support double-precision floating-point operation
-    set(CUDA_NVCC_FLAGS -Xcompiler -fPIC -use_fast_math -gencode=arch=compute_20,code="sm_20,compute_20"
-																								 -gencode=arch=compute_30,code="sm_30,compute_30" 
-																								 -gencode=arch=compute_35,code="sm_35,compute_35" 
-																								 -gencode=arch=compute_50,code="sm_50,compute_50" 
-																								--ptxas-options=-v -DMATLAB_MEX_FILE -DFW)
+    set(CUDA_NVCC_FLAGS -Xcompiler -fPIC -gencode=arch=compute_30,code="sm_30,compute_30" 
+						 -gencode=arch=compute_35,code="sm_35,compute_35" 
+						 -gencode=arch=compute_50,code="sm_50,compute_50" 
+						--ptxas-options=-v -DMATLAB_MEX_FILE -DFW)
 endif (IPP_FOUND)
 
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -Xcompiler ${OpenMP_CXX_FLAGS})
@@ -38,11 +36,17 @@ foreach(CU_FILE ${CU_FILES})
         else(CMAKE_CL_64)
           SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexw32)
         endif(CMAKE_CL_64)
-    else(WIN32)
+    elseif(UNIX AND NOT APPLE)
         if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-          SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexa64 PREFIX "")
+            SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexa64 PREFIX "")
         else(CMAKE_SIZEOF_VOID_P MATCHES "8")
-          SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexglx PREFIX "")
+            SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexglx PREFIX "")
+        endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
+    elseif(APPLE)
+        if (CMAKE_SIZEOF_VOID_P MATCHES "8")
+            SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexmaci64 PREFIX "")
+        else(CMAKE_SIZEOF_VOID_P MATCHES "8")
+            SET_TARGET_PROPERTIES(${CU_FILE} PROPERTIES SUFFIX .mexmaci PREFIX "")
         endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
     endif(WIN32)
 

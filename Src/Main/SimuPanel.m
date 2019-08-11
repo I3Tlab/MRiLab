@@ -94,6 +94,12 @@ handles.BatchList=[];
 %System Hardware Check
 try
     handles.CPUInfo=DoCPUOSChk;
+    if ismac & ~isfield(handles.CPUInfo,'NumThreads')
+        handles.CPUInfo.NumThreads = 4*handles.CPUInfo.NumProcessors;
+    end
+    handles.CPU_MATLAB_uimenu=uimenu(handles.SelectPU_uimenu,'Label','MATLAB Simulation (SLOW!!)');
+    set(handles.CPU_MATLAB_uimenu,'Callback',{@Uimenu_ChkFunction, handles.CPU_MATLAB_uimenu});
+    set(handles.CPU_MATLAB_uimenu,'Checked','off');
     if ~isempty(handles.CPUInfo)
         handles.CPU_uimenu=uimenu(handles.SelectPU_uimenu,'Label',handles.CPUInfo.Name);
         set(handles.CPU_uimenu,'Callback',{@Uimenu_ChkFunction, handles.CPU_uimenu});
@@ -894,13 +900,46 @@ try
                 end
                 set(hObject,'String','Scan...');
                 pause(0.01);
-                DoScanAtCPU;  % global (VSeq,VObj,VCtl,VMag,VCoi,VVar,VSig) are needed
-            else
-                error('No processing unit is selected.');
+                DoScanAtCPU;  % global (VSeq,VObj,VCtl,VMag,VCoi,VVar,VSig) are needed                            
+                Exe = 1;
             end
-        else
-            error('No processing unit is selected.');
         end
+    end
+    
+    if Exe == 0
+        if isfield(handles,'CPU_MATLAB_uimenu')
+            if strcmp(get(handles.CPU_MATLAB_uimenu,'Checked'),'on')
+                if isfield(VCtl, 'MT_Flag')
+                    if strcmp(VCtl.MT_Flag, 'on')
+                        error('CPU engine currently doesn''t support Magnetization Transfer model.');
+                    end
+                elseif isfield(VCtl, 'ME_Flag')
+                    if strcmp(VCtl.ME_Flag, 'on')
+                        error('CPU engine currently doesn''t support Multiple Pool Exchange model.');
+                    end
+                elseif isfield(VCtl, 'CEST_Flag')
+                    if strcmp(VCtl.CEST_Flag, 'on')
+                        error('CPU engine currently doesn''t support Chemical Exchange Saturation Transfer model.');
+                    end
+                elseif isfield(VCtl, 'GM_Flag')
+                    if strcmp(VCtl.GM_Flag, 'on')
+                        error('CPU engine currently doesn''t support General Model.');
+                    end
+                end
+                
+                if handles.BatchFlag==1
+                    error('DoScanAtCPU_MATLAB');
+                end
+                set(hObject,'String','Scan...');
+                pause(0.01);
+                DoScanAtCPU_MATLAB;  % global (VSeq,VObj,VCtl,VMag,VCoi,VVar,VSig) are needed
+                Exe = 1;
+            end
+        end
+    end
+    
+    if Exe == 0
+        error('No processing unit is selected.');
     end
     set(hObject,'String','Post...');
     pause(0.01);

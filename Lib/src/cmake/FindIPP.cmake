@@ -20,6 +20,7 @@ ELSE( "$ENV{IPP_ROOT}" STREQUAL "" )
                 PATH_SUFFIXES ipp ipp/include)
             INCLUDE_DIRECTORIES(${IPP_INCLUDE_DIR})
 
+
             SET(IPP_LIB_PATH $ENV{IPP_ROOT}/lib/intel64/)
             FIND_LIBRARY( IPP_S_LIBRARY
                           NAMES "ipps_l"
@@ -49,7 +50,7 @@ ELSE( "$ENV{IPP_ROOT}" STREQUAL "" )
             INCLUDE_DIRECTORIES(${IPP_INCLUDE_DIR})
 
             SET(IPP_LIB_PATH $ENV{IPP_ROOT}/lib)
-
+    
             FIND_LIBRARY( IPP_SE_LIBRARY
                           NAMES ippsemergedem64t
                           PATHS ${IPP_LIB_PATH})
@@ -115,48 +116,49 @@ ELSE( "$ENV{IPP_ROOT}" STREQUAL "" )
             )
             MESSAGE (STATUS "IPP_ROOT (IPP 7): $ENV{IPP_ROOT}")
 
-        ELSE ($ENV{IPP_ROOT} MATCHES .*composer.*)    #IPP 6.X
+        ELSE ($ENV{IPP_ROOT} MATCHES .*composer.*)    #IPP 2018 UNIX/Mac OS X
 
             FIND_PATH(IPP_INCLUDE_DIR ipp.h
-                    PATHS $ENV{IPP_ROOT}/include $ENV{IPP_ROOT}/../include /usr/include /usr/local/include
+                    PATHS $ENV{IPP_ROOT}/ipp/include $ENV{IPP_ROOT}/../include /usr/include /usr/local/include
                     PATH_SUFFIXES ipp ipp/include)
             INCLUDE_DIRECTORIES(${IPP_INCLUDE_DIR})
 
-
-            SET(IPP_LIB_PATH $ENV{IPP_ROOT}/lib)
-
-            FIND_LIBRARY( IPP_SE_LIBRARY
-                          NAMES ippsemergedem64t
-                          PATHS ${IPP_LIB_PATH})
+            if (APPLE)
+              # Mac OS X relative path to IPP libraries
+              SET(IPP_LIB_PATH $ENV{IPP_ROOT}/ipp/lib)
+            else(APPLE)
+              # Linux/Unix relative path to 64-bit IPP libraries
+              SET(IPP_LIB_PATH $ENV{IPP_ROOT}/ipp/lib/intel64)
+            endif(APPLE)
 
             FIND_LIBRARY( IPP_S_LIBRARY
-                          NAMES ippsmergedem64t_t
-                          PATHS ${IPP_LIB_PATH})
-
-            FIND_LIBRARY( IPP_VME_LIBRARY
-                          NAMES ippvmemergedem64t
+                          NAMES "ipps"
                           PATHS ${IPP_LIB_PATH})
 
             FIND_LIBRARY( IPP_VM_LIBRARY
-                          NAMES ippvmmergedem64t_t
+                          NAMES "ippvm"
                           PATHS ${IPP_LIB_PATH})
 
-            FIND_LIBRARY( IPP_IOMP5_LIBRARY
-                          NAMES "iomp5"
-                          PATHS $ENV{IPP_ROOT}/sharedlib)
-
             FIND_LIBRARY( IPP_CORE_LIBRARY
-                          NAMES ippcoreem64t_t
+                          NAMES "ippcore"
                           PATHS ${IPP_LIB_PATH})
 
             SET(IPP_LIBRARIES
-              ${IPP_SE_LIBRARY}
               ${IPP_S_LIBRARY}
-              ${IPP_VME_LIBRARY}
               ${IPP_VM_LIBRARY}
-              ${IPP_IOMP5_LIBRARY}
               ${IPP_CORE_LIBRARY}
             )
+
+            # iomp5 library only exists for Mac OS X
+            if (APPLE)
+                FIND_LIBRARY( IPP_IOMP5_LIBRARY
+                  NAMES "iomp5"
+                  PATHS $ENV{IPP_ROOT}/lib)
+                SET(IPP_LIBRARIES
+                  ${IPP_LIBRARIES}
+                  ${IPP_IOMP5_LIBRARY}              
+                  )
+            endif(APPLE)
 
             MESSAGE (STATUS "IPP_ROOT (IPP 6): $ENV{IPP_ROOT}")
         ENDIF ($ENV{IPP_ROOT} MATCHES .*composer.*)
