@@ -1,4 +1,3 @@
-
 include(${VTK_USE_FILE})
 
 if (VTK_FOUND)
