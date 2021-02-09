@@ -14,7 +14,7 @@ CenterZ=p.CenterZ;
 [X,Y,Z] = cylinder(Radius,FaceNum); 
 X=X+CenterX;
 Y=Y+CenterY;
-Z=(Z-0.5)*Length/2+CenterZ;
+Z=(Z-0.5)*Length+CenterZ;
 
 fvc = surf2patch(X,Y,Z);
 
